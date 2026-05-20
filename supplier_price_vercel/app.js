@@ -159,15 +159,29 @@ function syncFilterDropdowns(){
     const trigger = wrapper.querySelector('.filter-trigger');
     const options = Array.from(select.options);
     const selected = selectedValues(select);
+    const allSelected = options.length > 0 && selected.length === options.length;
     if(!options.length){
       menu.innerHTML = '<div class="filter-empty">暂无可选项</div>';
     } else {
-      menu.innerHTML = options.map((opt, idx) => `
-        <label class="filter-option" title="${escapeAttr(opt.value)}">
-          <input type="checkbox" data-option-index="${idx}" ${opt.selected ? 'checked' : ''} />
-          <span>${escapeHtml(opt.textContent)}</span>
-        </label>`).join('');
-      menu.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+      menu.innerHTML = `
+        <label class="filter-option filter-select-all" title="一键选择当前窗口所有选项">
+          <input type="checkbox" data-select-all="1" ${allSelected ? 'checked' : ''} />
+          <span>全选</span>
+        </label>
+        <div class="filter-menu-divider"></div>
+        ${options.map((opt, idx) => `
+          <label class="filter-option" title="${escapeAttr(opt.value)}">
+            <input type="checkbox" data-option-index="${idx}" ${opt.selected ? 'checked' : ''} />
+            <span>${escapeHtml(opt.textContent)}</span>
+          </label>`).join('')}`;
+
+      const selectAll = menu.querySelector('input[data-select-all]');
+      selectAll.addEventListener('change', () => {
+        Array.from(select.options).forEach(opt => { opt.selected = selectAll.checked; });
+        select.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+
+      menu.querySelectorAll('input[data-option-index]').forEach(cb => {
         cb.addEventListener('change', () => {
           const index = Number(cb.dataset.optionIndex);
           if(select.options[index]) select.options[index].selected = cb.checked;
@@ -178,6 +192,9 @@ function syncFilterDropdowns(){
     if(selected.length === 0){
       trigger.innerHTML = '<span class="filter-summary">全部</span>';
       trigger.title = '全部';
+    } else if(allSelected){
+      trigger.textContent = `已全选 ${selected.length} 项`;
+      trigger.title = selected.join('、');
     } else if(selected.length <= 2){
       trigger.textContent = selected.join('、');
       trigger.title = selected.join('、');

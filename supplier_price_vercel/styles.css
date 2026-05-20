@@ -44,3 +44,15 @@ select, textarea{width:100%;border:1px solid #d0d5dd;border-radius:10px;padding:
   color: #b54708;
   border: 1px solid #fedf89;
 }
+
+/* 筛选下拉菜单置顶全选项 */
+.filter-select-all{
+  position: sticky;
+  top: -8px;
+  z-index: 2;
+  background: #fff;
+  color: var(--primary);
+  font-weight: 900;
+}
+.filter-select-all:hover{background:#eff6ff}
+.filter-menu-divider{height:1px;background:var(--line);margin:6px 0}
